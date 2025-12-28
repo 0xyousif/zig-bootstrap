@@ -112,9 +112,10 @@ $ZIG build-lib \
   --name zstd \
   -target $TARGET \
   -mcpu=$MCPU \
-  -OReleaseFast \
+  -OReleaseSafe \
   -fstrip \
   -lc \
+  --maxrss 7000000000 \
   "$ROOTDIR/zstd/lib/"**/*.c \
   "$ROOTDIR/zstd/lib/decompress/huf_decompress_amd64.S"
 
