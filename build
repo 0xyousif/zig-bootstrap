@@ -164,10 +164,10 @@ $ZIG build \
   --search-prefix "$ROOTDIR/out/$TARGET-$MCPU" \
   -Dflat \
   -Dstatic-llvm \
-  -Doptimize=ReleaseFast \
+  -Doptimize=ReleaseSafe \
   -Dstrip \
   -Dtarget="$TARGET" \
   -Dcpu="$MCPU" \
   -Dversion-string="$ZIG_VERSION" \
   --maxrss 7000000000 \
-  -j2
+  -j1
