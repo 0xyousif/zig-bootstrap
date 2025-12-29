@@ -202,6 +202,9 @@ $ZIG build \
   -Dflat \
   -Dstatic-llvm \
   -Doptimize=ReleaseSafe \
+  -Dskip-release-fast=true \
+  -Dskip-debug=true \
+  -Dskip-release-small=true \
   -Dstrip \
   -Dtarget="$TARGET" \
   -Dcpu="$MCPU" \
