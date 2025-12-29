@@ -6,6 +6,7 @@ set -eu
 TARGET="$1"
 MCPU="$2"
 
+SDK="$(xcrun --sdk iphoneos --show-sdk-path)"
 ROOTDIR="$(pwd)"
 ZIG_VERSION="0.15.2"
 
@@ -17,6 +18,7 @@ case $TARGET_OS_CMAKE in
   netbsd*) TARGET_OS_CMAKE="NetBSD";;
   windows*) TARGET_OS_CMAKE="Windows";;
   linux*) TARGET_OS_CMAKE="Linux";;
+  ios*) TARGET_OS_CMAKE="iOS";;
   native) TARGET_OS_CMAKE="";;
 esac
 
@@ -59,7 +61,7 @@ cmake "$ROOTDIR/llvm" \
   -DCLANG_TOOL_C_ARCMT_TEST_BUILD=OFF \
   -DCLANG_TOOL_LIBCLANG_BUILD=OFF
 
-cmake --build . --target install -j$(sysctl -n hw.logicalcpu)
+cmake --build . --target install -j4
 
 ###############################################################################
 # Zig host (stage2)
@@ -74,7 +76,7 @@ cmake "$ROOTDIR/zig" \
   -DCMAKE_BUILD_TYPE=Release \
   -DZIG_VERSION="$ZIG_VERSION"
 
-cmake --build . --target install -j$(sysctl -n hw.logicalcpu)
+cmake --build . --target install -j4
 
 ZIG="$ROOTDIR/out/host/bin/zig"
 
@@ -90,7 +92,9 @@ cmake "$ROOTDIR/zlib" \
   -DCMAKE_PREFIX_PATH="$ROOTDIR/out/$TARGET-$MCPU" \
   -DCMAKE_BUILD_TYPE=Release \
   -DCMAKE_CROSSCOMPILING=True \
+  -DCMAKE_OSX_SYSROOT="$SDK" \
   -DCMAKE_SYSTEM_NAME="$TARGET_OS_CMAKE" \
+  -DCMAKE_OSX_DEPLOYMENT_TARGET=15.0 \
   -DCMAKE_C_COMPILER="$ZIG;cc;-fno-sanitize=all;-s;-target;$TARGET;-mcpu=$MCPU" \
   -DCMAKE_CXX_COMPILER="$ZIG;c++;-fno-sanitize=all;-s;-target;$TARGET;-mcpu=$MCPU" \
   -DCMAKE_ASM_COMPILER="$ZIG;cc;-fno-sanitize=all;-s;-target;$TARGET;-mcpu=$MCPU" \
@@ -99,7 +103,7 @@ cmake "$ROOTDIR/zlib" \
   -DCMAKE_AR="$ROOTDIR/out/host/bin/llvm-ar" \
   -DCMAKE_RANLIB="$ROOTDIR/out/host/bin/llvm-ranlib"
 
-cmake --build . --target install -j$(sysctl -n hw.logicalcpu)
+cmake --build . --target install -j4
 
 ###############################################################################
 # zstd (manual)
@@ -116,8 +120,38 @@ $ZIG build-lib \
   -fstrip \
   -lc \
   --maxrss 7000000000 \
-  "$ROOTDIR/zstd/lib/"**/*.c \
-  "$ROOTDIR/zstd/lib/decompress/huf_decompress_amd64.S"
+  "$ROOTDIR/zstd/lib/decompress/zstd_ddict.c" \
+  "$ROOTDIR/zstd/lib/decompress/zstd_decompress.c" \
+  "$ROOTDIR/zstd/lib/decompress/huf_decompress.c" \
+  "$ROOTDIR/zstd/lib/decompress/zstd_decompress_block.c" \
+  "$ROOTDIR/zstd/lib/compress/zstdmt_compress.c" \
+  "$ROOTDIR/zstd/lib/compress/zstd_opt.c" \
+  "$ROOTDIR/zstd/lib/compress/hist.c" \
+  "$ROOTDIR/zstd/lib/compress/zstd_ldm.c" \
+  "$ROOTDIR/zstd/lib/compress/zstd_fast.c" \
+  "$ROOTDIR/zstd/lib/compress/zstd_compress_literals.c" \
+  "$ROOTDIR/zstd/lib/compress/zstd_double_fast.c" \
+  "$ROOTDIR/zstd/lib/compress/huf_compress.c" \
+  "$ROOTDIR/zstd/lib/compress/fse_compress.c" \
+  "$ROOTDIR/zstd/lib/compress/zstd_lazy.c" \
+  "$ROOTDIR/zstd/lib/compress/zstd_compress.c" \
+  "$ROOTDIR/zstd/lib/compress/zstd_compress_sequences.c" \
+  "$ROOTDIR/zstd/lib/compress/zstd_compress_superblock.c" \
+  "$ROOTDIR/zstd/lib/deprecated/zbuff_compress.c" \
+  "$ROOTDIR/zstd/lib/deprecated/zbuff_decompress.c" \
+  "$ROOTDIR/zstd/lib/deprecated/zbuff_common.c" \
+  "$ROOTDIR/zstd/lib/common/entropy_common.c" \
+  "$ROOTDIR/zstd/lib/common/pool.c" \
+  "$ROOTDIR/zstd/lib/common/threading.c" \
+  "$ROOTDIR/zstd/lib/common/zstd_common.c" \
+  "$ROOTDIR/zstd/lib/common/xxhash.c" \
+  "$ROOTDIR/zstd/lib/common/debug.c" \
+  "$ROOTDIR/zstd/lib/common/fse_decompress.c" \
+  "$ROOTDIR/zstd/lib/common/error_private.c" \
+  "$ROOTDIR/zstd/lib/dictBuilder/zdict.c" \
+  "$ROOTDIR/zstd/lib/dictBuilder/divsufsort.c" \
+  "$ROOTDIR/zstd/lib/dictBuilder/fastcover.c" \
+  "$ROOTDIR/zstd/lib/dictBuilder/cover.c" 
 
 ###############################################################################
 # LLVM cross
@@ -132,6 +166,8 @@ cmake "$ROOTDIR/llvm" \
   -DCMAKE_BUILD_TYPE=Release \
   -DCMAKE_CROSSCOMPILING=True \
   -DCMAKE_SYSTEM_NAME="$TARGET_OS_CMAKE" \
+  -DCMAKE_OSX_SYSROOT="$SDK" \
+  -DCMAKE_OSX_DEPLOYMENT_TARGET=15.0 \
   -DCMAKE_C_COMPILER="$ZIG;cc;-fno-sanitize=all;-s;-target;$TARGET;-mcpu=$MCPU" \
   -DCMAKE_CXX_COMPILER="$ZIG;c++;-fno-sanitize=all;-s;-target;$TARGET;-mcpu=$MCPU" \
   -DCMAKE_ASM_COMPILER="$ZIG;cc;-fno-sanitize=all;-s;-target;$TARGET;-mcpu=$MCPU" \
@@ -153,7 +189,7 @@ cmake "$ROOTDIR/llvm" \
   -DCLANG_BUILD_TOOLS=OFF \
   -DLLD_BUILD_TOOLS=OFF
 
-cmake --build . --target install -j$(sysctl -n hw.logicalcpu)
+cmake --build . --target install -j4
 
 ###############################################################################
 # Zig final (stage3) — FIX OOM
@@ -170,5 +206,4 @@ $ZIG build \
   -Dtarget="$TARGET" \
   -Dcpu="$MCPU" \
   -Dversion-string="$ZIG_VERSION" \
-  --maxrss 7000000000 \
-  -j1
+  --maxrss 7000000000 
