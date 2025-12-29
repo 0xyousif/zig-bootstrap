@@ -922,7 +922,7 @@ if(ZIG_EXTRA_BUILD_ARGS)
   list(APPEND ZIG_BUILD_ARGS ${ZIG_EXTRA_BUILD_ARGS})
 endif()
 
-set(ZIG_RELEASE_SAFE OFF CACHE BOOL "Build Zig as ReleaseSafe (with debug assertions on)")
+set(ZIG_RELEASE_SAFE ON CACHE BOOL "Build Zig as ReleaseSafe (with debug assertions on)")
 
 if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
   list(APPEND ZIG_BUILD_ARGS -Doptimize=Debug)
