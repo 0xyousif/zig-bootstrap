@@ -201,7 +201,7 @@ $ZIG build \
   --search-prefix "$ROOTDIR/out/$TARGET-$MCPU" \
   -Dflat \
   -Dstatic-llvm \
-  -Doptimize=ReleaseSafe \
+  -Doptimize=ReleaseFast \
   -Dskip-release-fast=true \
   -Dskip-debug=true \
   -Dskip-release-small=true \
