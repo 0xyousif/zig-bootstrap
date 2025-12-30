@@ -923,6 +923,7 @@ if(ZIG_EXTRA_BUILD_ARGS)
 endif()
 
 list(APPEND ZIG_BUILD_ARGS --maxrss 10000000000)
+list(APPEND ZIG_BUILD_ARGS --sysroot /Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk -miphoneos-version-min=15.0)
 
 set(ZIG_RELEASE_SAFE ON CACHE BOOL "Build Zig as ReleaseSafe (with debug assertions on)")
 
