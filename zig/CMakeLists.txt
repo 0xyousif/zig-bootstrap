@@ -922,6 +922,8 @@ if(ZIG_EXTRA_BUILD_ARGS)
   list(APPEND ZIG_BUILD_ARGS ${ZIG_EXTRA_BUILD_ARGS})
 endif()
 
+list(APPEND ZIG_BUILD_ARGS --maxrss 7000000000)
+
 set(ZIG_RELEASE_SAFE ON CACHE BOOL "Build Zig as ReleaseSafe (with debug assertions on)")
 
 if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
