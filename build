@@ -119,6 +119,7 @@ $ZIG build-lib \
   -OReleaseFast \
   -fstrip \
   -lc \
+  --sysroot "$SDK" \
   --maxrss 10000000000 \
   "$ROOTDIR/zstd/lib/decompress/zstd_ddict.c" \
   "$ROOTDIR/zstd/lib/decompress/zstd_decompress.c" \
@@ -205,6 +206,7 @@ $ZIG build \
   -Dskip-debug=true \
   -Dskip-release-small=true \
   -Dstrip \
+  --sysroot "$SDK" \
   -Dtarget="$TARGET" \
   -Dcpu="$MCPU" \
   -Dversion-string="$ZIG_VERSION" \
