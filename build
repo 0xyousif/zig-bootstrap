@@ -116,10 +116,10 @@ $ZIG build-lib \
   --name zstd \
   -target $TARGET \
   -mcpu=$MCPU \
-  -OReleaseSafe \
+  -OReleaseFast \
   -fstrip \
   -lc \
-  --maxrss 7000000000 \
+  --maxrss 10000000000 \
   "$ROOTDIR/zstd/lib/decompress/zstd_ddict.c" \
   "$ROOTDIR/zstd/lib/decompress/zstd_decompress.c" \
   "$ROOTDIR/zstd/lib/decompress/huf_decompress.c" \
@@ -202,11 +202,10 @@ $ZIG build \
   -Dflat \
   -Dstatic-llvm \
   -Doptimize=ReleaseFast \
-  -Dskip-release-fast=true \
   -Dskip-debug=true \
   -Dskip-release-small=true \
   -Dstrip \
   -Dtarget="$TARGET" \
   -Dcpu="$MCPU" \
   -Dversion-string="$ZIG_VERSION" \
-  --maxrss 7000000000 
+  --maxrss 10000000000 
